@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import "./globals.css";
 import Sidebar from "../components/Sidebar";
 import BootstrapClient from "@/components/BootstrapClient";
@@ -29,12 +30,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-          integrity="sha384-KY4GNsq4CPGK/c/pX9nuSUXwxLBzME2YkdE+5EYXPLkZX31lrT7xYuFeoJq6Dig0"
-          crossOrigin="anonymous"
-        />
       </head>
       <body>
         <BootstrapClient />

@@ -39,7 +39,7 @@ export default function Simulator() {
   return (
     <div className="container py-5">
       <div className="row justify-content-center">
-        <div className="col-12 col-lg-8 col-xl-6">
+        <div className="col-12 col-lg-12 col-xl-10">
           <div className="card border-0 shadow-sm bg-white">
             <div className="card-body p-4 p-md-5">
               <h1 className="h4 text-primary mb-3">Simulador de crédito</h1>

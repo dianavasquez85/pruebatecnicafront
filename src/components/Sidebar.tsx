@@ -16,10 +16,15 @@ export default function Sidebar() {
       style={{ width: collapsed ? '80px' : '250px', transition: 'width 0.3s' }}
     >
       {/* Título / Logo */}
-      <div className="d-flex align-items-center mb-3 mb-md-0 me-md-auto">
-        <span className="fs-5 fw-bold text-primary">
-          {collapsed ? '💰' : 'BancoSim'}
-        </span>
+      <div className="d-flex align-items-center justify-content-between mb-3 mb-md-0 me-md-auto">
+          {collapsed ? <i className="bi bi-bank"></i> : <div className='d-flex justify-content-around w-100'><span className="fs-5 fw-bold text-primary"><i className="bi bi-bank"></i> Banco</span></div>}
+        {/* Botón de colapsar */}
+        <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="btn btn-sm mt-auto"
+        >
+            {collapsed ? <i className="bi bi-chevron-compact-right"></i> : <i className="bi bi-chevron-compact-left"></i>}
+        </button>
       </div>
       <hr />
 
@@ -56,13 +61,7 @@ export default function Sidebar() {
 
       <hr />
 
-      {/* Botón de colapsar */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="btn btn-outline-secondary btn-sm mt-auto"
-      >
-        {collapsed ? '➡️' : '⬅️'}
-      </button>
+      
     </div>
   );
 }
