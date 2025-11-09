@@ -13,7 +13,6 @@ export default function Onboarding() {
               <p className="text-muted mb-4">
                 Por favor, ingrese todos los datos requeridos para completar su registro.
               </p>
-              {/* Aquí puedes agregar el formulario o los pasos del onboarding */}
               <form className="vstack gap-4">
                 <div>
                   <label htmlFor="fullName" className="form-label fw-semibold">
