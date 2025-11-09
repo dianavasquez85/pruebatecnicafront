@@ -1,12 +1,11 @@
-import { fetchProducts } from "@/lib/products";
-import { use } from "react";
+import { fetchProducts } from "../../lib/api/products";
 import Products from "./Products";
 
 export const dynamic = 'force-dynamic';
 
 export default async function ProductsPage() {
 
-  const userId = '12345'; // Simulación de obtención del ID de usuario   
+  const userId = 'u001'; // Simulación de obtención del ID de usuario   
   const products = await fetchProducts(userId);
 
   return (
@@ -15,4 +14,3 @@ export default async function ProductsPage() {
     </main>
   );
 }
-

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, ChangeEvent } from 'react';
+import { useEffect, useMemo, useState, ChangeEvent, useLayoutEffect, useRef } from 'react';
 import {
   formatCurrency,
   getMinAmount,
@@ -15,6 +15,68 @@ import {
   investmentTermOptionsByType,
 } from '@/lib/config/simulator';
 
+function useCurrencyInput({
+  value,
+  onValueChange,
+  formatter,
+}: {
+  value: string;
+  onValueChange: (nextValue: string) => void;
+  formatter: (value: number) => string;
+}) {
+  const [displayValue, setDisplayValue] = useState('');
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const pendingCaret = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!value) {
+      setDisplayValue('');
+      return;
+    }
+    setDisplayValue(formatter(Number(value)));
+  }, [value, formatter]);
+
+  useLayoutEffect(() => {
+    if (pendingCaret.current !== null && inputRef.current) {
+      const pos = pendingCaret.current;
+      inputRef.current.setSelectionRange(pos, pos);
+      pendingCaret.current = null;
+    }
+  });
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value;
+    const selectionStart = event.target.selectionStart ?? rawValue.length;
+    const digitsBeforeCaret = rawValue
+      .slice(0, selectionStart)
+      .replace(/\D/g, '').length;
+    const digitsOnly = rawValue.replace(/\D/g, '');
+
+    onValueChange(digitsOnly);
+
+    if (!digitsOnly) {
+      setDisplayValue('');
+      pendingCaret.current = 0;
+      return;
+    }
+
+    const nextDisplay = formatter(Number(digitsOnly));
+    setDisplayValue(nextDisplay);
+
+    let caretIndex = 0;
+    let digitsSeen = 0;
+    while (caretIndex < nextDisplay.length && digitsSeen < digitsBeforeCaret) {
+      if (/\d/.test(nextDisplay[caretIndex])) {
+        digitsSeen += 1;
+      }
+      caretIndex += 1;
+    }
+    pendingCaret.current = caretIndex;
+  };
+
+  return { displayValue, handleChange, inputRef };
+}
+
 export default function Simulator() {
   const [amount, setAmount] = useState('');
   const [rate, setRate] = useState('');      // tasa E.A. (%)
@@ -25,7 +87,9 @@ export default function Simulator() {
 
   const [amountError, setAmountError] = useState<string | null>(null);
   const [typeProductError, setTypeProductError] = useState<string | null>(null);
+  const [productSelectError, setProductSelectError] = useState<string | null>(null);
   const [investmentError, setInvestmentError] = useState<string | null>(null);
+  const [monthsError, setMonthsError] = useState<string | null>(null);
 
   const [resultValue, setResultValue] = useState<number | null>(null);
   const [resultLabel, setResultLabel] = useState<string | null>(null);
@@ -35,6 +99,18 @@ export default function Simulator() {
     () => getMinAmount(selectedProductType || ''),
     [selectedProductType]
   );
+  const {
+    displayValue: amountInputValue,
+    handleChange: handleAmountInputChange,
+    inputRef: amountInputRef,
+  } = useCurrencyInput({
+    value: amount,
+    onValueChange: (digits) => {
+      setAmount(digits);
+      evaluateAmount(digits);
+    },
+    formatter: formatCurrency,
+  });
 
   const creditTermOptions = useMemo(() => {
     if (selectedProductType !== 'credito' || !creditRateType) return [];
@@ -61,6 +137,20 @@ export default function Simulator() {
       return false;
     }
     setAmountError(null);
+    return true;
+  };
+
+  const evaluateMonths = (rawValue: string) => {
+    const numericValue = Number(rawValue);
+    if (!numericValue) {
+      setMonthsError('Ingresa el plazo en meses.');
+      return false;
+    }
+    if (numericValue < 1) {
+      setMonthsError('El plazo debe ser al menos 1 mes.');
+      return false;
+    }
+    setMonthsError(null);
     return true;
   };
 
@@ -117,13 +207,31 @@ export default function Simulator() {
     setResultValue(null);
     setResultLabel(null);
     setResultDetail(null);
+    setProductSelectError(null);
+
+    if (!selectedProductType) {
+      setProductSelectError('Selecciona un producto antes de simular.');
+      return;
+    }
 
     const principal = Number(amount.replace(/\D/g, '')) || 0;
     const n = Number(months);
     const annualRate = Number(rate);
 
+    const requiresManualMonths =
+      selectedProductType === 'ahorros' ||
+      (selectedProductType &&
+        !['credito', 'cdt', 'inversion', 'ahorros'].includes(
+          selectedProductType
+        ));
+
     const isAmountValid = evaluateAmount(String(principal));
-    if (!isAmountValid || !principal || !n) {
+    const isMonthsValid = requiresManualMonths ? evaluateMonths(months) : true;
+
+    if (!isAmountValid || !isMonthsValid || !principal || !n) {
+      if (!n && requiresManualMonths) {
+        setMonthsError('Ingresa el plazo en meses.');
+      }
       return;
     }
 
@@ -142,7 +250,7 @@ export default function Simulator() {
 
       setResultLabel('Cuota mensual estimada');
       setResultValue(installment);
-      setResultDetail(
+    setResultDetail(
         `Intereses totales aproximados: ${formatCurrency(totalInterest)}`
       );
       return;
@@ -168,8 +276,8 @@ export default function Simulator() {
       );
       return;
     }
-    // Cuentas (Ahorros / Corriente)
-    if (selectedProductType === 'ahorros' || selectedProductType === 'corriente') {
+    // Cuentas de ahorro
+    if (selectedProductType === 'ahorros') {
       const { finalAmount, interestEarned } = calculateCompoundGrowth(
         principal,
         annualRate,
@@ -186,22 +294,21 @@ export default function Simulator() {
   }
 
   return (
-  <div className="container py-5">
-    <div className="row justify-content-center">
+  <div className="container-fluid py-5">
+    <div className="row align-items-center mb-4 gy-3 justify-content-center">
+      <div className="col-12 col-xl-10">
+          <h1 className="h3 mb-1">Simulador</h1>
+          <p className="text-muted mb-0">
+            Simula tus productos financieros y obtén resultados aproximados.
+          </p>
+      </div>
       <div className="col-12 col-xl-10">
         {/* Dos columnas: formulario y resultado */}
         <div className="row g-4">
           {/* Columna del formulario */}
-          <div className="col-12 col-lg-7">
+          <div className="col-12 col-lg-7 col-md-12">
             <div className="card border-0 shadow-sm bg-white h-100">
-              <div className="card-body p-4 p-md-5">
-                <h1 className="h4 text-primary mb-3">Simulador de productos</h1>
-                <p>
-                  Utiliza este simulador para calcular el valor de tus productos
-                  financieros.
-                </p>
-
-                {/* 🔽 Aquí va TODO tu <form> tal como ya lo tienes */}
+              <div className="card-body p-4">
                 <form className="vstack gap-4" onSubmit={handleSubmit}>
                 {/* Tipo de producto */}
                 <div>
@@ -209,7 +316,13 @@ export default function Simulator() {
                     Tipo de producto
                   </label>
                   <select
-                    className="form-select"
+                    className={`form-select ${
+                      productSelectError
+                        ? 'is-invalid'
+                        : selectedProductType
+                        ? 'is-valid'
+                        : ''
+                    }`}
                     value={selectedProductType}
                     onChange={(e) => {
                       const value = e.target.value as ProductType | '';
@@ -220,6 +333,8 @@ export default function Simulator() {
                       setTypeProductError(null);
                       setInvestmentError(null);
                       setResultValue(null);
+                      setProductSelectError(null);
+                      setMonthsError(null);
 
                       // Asignar tasa predefinida para cuentas
                       const defaultSavingsRate =
@@ -231,11 +346,17 @@ export default function Simulator() {
                   >
                     <option value="">Seleccione un tipo</option>
                     <option value="ahorros">Cuenta de Ahorros</option>
-                    <option value="corriente">Cuenta Corriente</option>
                     <option value="credito">Crédito</option>
                     <option value="cdt">CDT</option>
                     <option value="inversion">Inversión</option>
                   </select>
+                  <div
+                    className={`invalid-feedback ${
+                      productSelectError ? 'd-block' : ''
+                    }`}
+                  >
+                    {productSelectError || 'Selecciona un producto válido.'}
+                  </div>
                 </div>
 
                 {/* Monto */}
@@ -254,6 +375,7 @@ export default function Simulator() {
                     </span>
                     <input
                       id="amount"
+                      ref={amountInputRef}
                       className={`form-control ${
                         amountError
                           ? 'is-invalid'
@@ -261,15 +383,17 @@ export default function Simulator() {
                           ? 'is-valid'
                           : ''
                       }`}
-                      value={amount}
+                      value={amountInputValue}
                       inputMode="numeric"
                       min={minAmount}
                       required
-                      onChange={(event) => {
-                        const onlyDigits = event.target.value.replace(/\D/g, '');
-                        setAmount(onlyDigits);
+                      onChange={handleAmountInputChange}
+                      onBlur={() => {
+                        if (!amount) {
+                          setAmountError('Ingresa el monto en números.');
+                        }
                       }}
-                      placeholder="Ej: 20000000"
+                      placeholder="Ej: 20.000.000"
                     />
                   </div>
                   <div className="form-text">
@@ -337,9 +461,8 @@ export default function Simulator() {
                   </div>
                 ) : null}
 
-                {/* Tasa para cuentas (ahorros / corriente) — readonly, ofrecida por el banco */}
-                {(selectedProductType === 'ahorros' ||
-                  selectedProductType === 'corriente') && (
+                {/* Tasa para cuentas de ahorro — readonly, ofrecida por el banco */}
+                {selectedProductType === 'ahorros' && (
                   <div>
                     <label className="form-label fw-semibold">
                       Tasa de interés (% E.A.) ofrecida por el banco
@@ -397,9 +520,8 @@ export default function Simulator() {
                   </div>
                 ) : null}
 
-                {/* Plazo para cuentas (ahorros/corriente) */}
-                {(selectedProductType === 'ahorros' ||
-                  selectedProductType === 'corriente') && (
+                {/* Plazo para cuentas de ahorro */}
+                {selectedProductType === 'ahorros' && (
                   <div>
                     <label
                       htmlFor="months"
@@ -409,21 +531,38 @@ export default function Simulator() {
                     </label>
                     <input
                       id="months"
-                      className="form-control"
+                      className={`form-control ${
+                        monthsError ? 'is-invalid' : months ? 'is-valid' : ''
+                      }`}
                       type="number"
                       value={months}
-                      onChange={(event) => setMonths(event.target.value)}
+                      onChange={(event) => {
+                        const nextValue = event.target.value.replace(/\D/g, '');
+                        setMonths(nextValue);
+                        evaluateMonths(nextValue);
+                      }}
+                      onBlur={() => {
+                        if (!months) {
+                          setMonthsError('Ingresa el plazo en meses.');
+                        }
+                      }}
                       placeholder="Ej: 12"
                     />
+                    <div
+                      className={`invalid-feedback ${
+                        monthsError ? 'd-block' : ''
+                      }`}
+                    >
+                      {monthsError || 'Ingresa un plazo válido.'}
+                    </div>
                   </div>
                 )}
 
-                {/* Plazo genérico para otros productos (si algún día agregas más) */}
+                {/* Plazo genérico para otros productos */}
                 {selectedProductType !== 'credito' &&
                   selectedProductType !== 'cdt' &&
                   selectedProductType !== 'inversion' &&
-                  selectedProductType !== 'ahorros' &&
-                  selectedProductType !== 'corriente' && (
+                  selectedProductType !== 'ahorros' && (
                     <div>
                       <label
                         htmlFor="months"
@@ -433,12 +572,30 @@ export default function Simulator() {
                       </label>
                       <input
                         id="months"
-                        className="form-control"
+                        className={`form-control ${
+                          monthsError ? 'is-invalid' : months ? 'is-valid' : ''
+                        }`}
                         type="number"
                         value={months}
-                        onChange={(event) => setMonths(event.target.value)}
+                        onChange={(event) => {
+                          const nextValue = event.target.value.replace(/\D/g, '');
+                          setMonths(nextValue);
+                          evaluateMonths(nextValue);
+                        }}
+                        onBlur={() => {
+                          if (!months) {
+                            setMonthsError('Ingresa el plazo en meses.');
+                          }
+                        }}
                         placeholder="Ej: 12"
                       />
+                      <div
+                        className={`invalid-feedback ${
+                          monthsError ? 'd-block' : ''
+                        }`}
+                      >
+                        {monthsError || 'Ingresa un plazo válido.'}
+                      </div>
                     </div>
                   )}
 
@@ -474,7 +631,10 @@ export default function Simulator() {
                   type="submit"
                   className="btn btn-primary w-100 py-2"
                   disabled={
-                    !!amountError || !!typeProductError || !!investmentError
+                    !!amountError ||
+                    !!typeProductError ||
+                    !!investmentError ||
+                    !!monthsError
                   }
                 >
                   Simular
@@ -485,7 +645,7 @@ export default function Simulator() {
           </div>
 
           {/* Columna del resultado */}
-          <div className="col-12 col-lg-5">
+          <div className="col-12 col-lg-5 col-md-12">
             {resultValue !== null && (
               <div className="card border-0 shadow-sm bg-light h-100">
                 <div className="card-body d-flex flex-column p-4">
@@ -539,7 +699,7 @@ export default function Simulator() {
                   </div>
 
                   {/* Texto adicional (intereses totales, interés ganado, etc.) */}
-                  {resultDetail && (
+                  {resultDetail && selectedProductType !== 'credito' && (
                     <p className="mt-3 mb-0 small text-muted">
                       {resultDetail}
                     </p>

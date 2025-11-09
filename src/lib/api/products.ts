@@ -1,4 +1,4 @@
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 
 export async function fetchProducts(userId: string): Promise<Product[]> {
 
@@ -183,8 +183,7 @@ export async function fetchProducts(userId: string): Promise<Product[]> {
     "currency": "COP",
     "type": "ahorros"
   }
-]
-;
+];
 
     // Simula una llamada a una API para obtener los productos
     return mock;

@@ -43,9 +43,10 @@ export default function Products({ products }: Props) {
   }, [query, applyFilter]);
 
   return (
-    <div className="container py-4">
-      <div className="row align-items-center mb-4 gy-3">
-        <div className="col">
+    <main className="container-fluid py-5">
+      <div className="row align-items-center mb-4 gy-3 justify-content-center">
+        <div className="col-12 col-xl-10">
+          <div className="col">
           <h1 className="h3 mb-1">Productos</h1>
           <p className="text-muted mb-0">
             Explora tus productos financieros y encuentra lo que necesitas rápidamente.
@@ -63,14 +64,14 @@ export default function Products({ products }: Props) {
               id="product-search"
               type="search"
               className="form-control border-start-0"
-              placeholder="Buscar por nombre, alias o tipo"
+              placeholder="Buscar por nombre o tipo"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
           </div>
         </div>
       </div>
-
+    <div className="col-12 col-xl-10">
       {filteredProducts.length === 0 ? (
         <div className="alert alert-warning" role="alert">
           No se encontraron productos.
@@ -103,5 +104,8 @@ export default function Products({ products }: Props) {
         </div>
       )}
     </div>
+      
+    </div>
+    </main>
   );
 }

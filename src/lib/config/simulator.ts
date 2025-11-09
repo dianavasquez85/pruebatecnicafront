@@ -2,18 +2,16 @@
 
 export type ProductType =
   | 'ahorros'
-  | 'corriente'
   | 'credito'
   | 'cdt'
   | 'inversion';
 
-// Tasas por defecto para cuentas (aprox. Colombia, puedes ajustarlas)
+// Tasas por defecto para cuenta de ahorro (usando una referencia promedio)
 export const savingsDefaultRateByProduct: Partial<Record<ProductType, number>> = {
   ahorros: 6,   // 6% E.A. referencial para cuentas de ahorro
-  corriente: 0, // muchas cuentas corrientes no generan rendimientos
 };
 
-// Opciones de tipo de crédito con sus tasas
+// Opciones de tipo de crédito con sus tasas (usando referencias promedio)
 export const creditRateOptions = [
   { value: 18, label: 'Crédito Libre Inversión — 18% E.A.' },
   { value: 13, label: 'Crédito Hipotecario — 13% E.A.' },
