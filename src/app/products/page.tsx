@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function ProductsPage() {
 
-  const userId = 'u001'; // Simulación de obtención del ID de usuario   
+  const userId = 'u003'; // Simulación de obtención del ID de usuario   
   const products = await fetchProducts(userId);
 
   return (

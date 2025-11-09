@@ -97,7 +97,7 @@ export default function Onboarding() {
     <div className="container-fluid py-5">
       <div className="row align-items-center mb-4 gy-3 justify-content-center">
         <div className="col-12 col-xl-10">
-          <h1 className="h3 mb-1">Adquirir productos</h1>
+          <h1 className="h3 mb-1 text-primary">Adquirir productos</h1>
           <p>Ingresa tus datos y completa el formulario para continuar.  Uno de nuestros agentes se pondrá en contacto contigo pronto.</p>
         </div>
         <div className="col-12 col-xl-10">

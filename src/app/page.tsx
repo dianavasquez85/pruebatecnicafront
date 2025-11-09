@@ -3,18 +3,21 @@ import Link from 'next/link';
 
 export default function Home() {
    return (
-    <main className="container-fluid py-4">
+    <main className="container-fluid py-5">
       <div className="row align-items-center mb-4 gy-3 justify-content-center">
         <div className="col-12 col-xl-10">
+          <div className="col mt-2">
           {/* Bienvenida */}
-          <section className="mb-5 ">
-            <h1 className="h3 fw-bold text-primary mb-2 ">
-              ¡Hola, Usuario!
+          <section className="mb-5 mt-2">
+            <h1 className="h3 fw-bold text-primary mb-1 ">
+              ¡Hola, Usuario!  Bienvenido a tu Banco Amigo.
             </h1>
             <p className="text-muted mb-0">
               Consulta tus productos, realiza simulaciones o aprende cómo mejorar tus finanzas personales.
             </p>
           </section>
+          </div>
+          
 
           {/* Sección principal de productos */}
           <section>

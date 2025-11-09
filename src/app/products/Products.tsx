@@ -45,14 +45,13 @@ export default function Products({ products }: Props) {
   return (
     <main className="container-fluid py-5">
       <div className="row align-items-center mb-4 gy-3 justify-content-center">
-        <div className="col-12 col-xl-10">
-          <div className="col">
-          <h1 className="h3 mb-1">Productos</h1>
-          <p className="text-muted mb-0">
-            Explora tus productos financieros y encuentra lo que necesitas rápidamente.
-          </p>
+        <div className="col-12 col-xl-6">
+           <h1 className="h3 mb-1 text-primary">Productos</h1>
+            <p className="text-muted mb-0">
+              Explora tus productos financieros y encuentra lo que necesitas rápidamente.
+            </p>
         </div>
-        <div className="col-12 col-md-5 col-lg-4">
+      <div className="col-12 col-xl-4 mb-3">
           <label htmlFor="product-search" className="form-label visually-hidden">
             Buscar productos
           </label>
@@ -68,42 +67,41 @@ export default function Products({ products }: Props) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
             />
-          </div>
         </div>
       </div>
-    <div className="col-12 col-xl-10">
-      {filteredProducts.length === 0 ? (
-        <div className="alert alert-warning" role="alert">
-          No se encontraron productos.
-        </div>
-      ) : (
-        <div className="row g-4">
-          {filteredProducts.map((product) => (
-            <div className="col-12 col-md-6 col-lg-4" key={product.id}>
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-body d-flex flex-column">
-                  <span className="badge bg-primary-subtle text-primary-emphasis text-uppercase fw-semibold mb-3">
-                    {product.type}
-                  </span>
-                  <h5 className="card-title mb-1">{product.name}</h5>
-                  {product.alias && (
-                    <p className="text-muted small mb-3">Alias: {product.alias}</p>
-                  )}
-                  <p className="display-6 fs-3 fw-bold text-primary mb-1">
-                    {formatCurrency(product.balance, product.currency)}
-                  </p>
-                  <p className="text-muted small mb-4">{product.currency}</p>
-                  <div className="mt-auto d-flex justify-content-between text-muted small">
-                    <span>ID: {product.id}</span>
-                    <span>Saldo</span>
+      <div className="col-12 col-xl-10">
+        {filteredProducts.length === 0 ? (
+          <div className="alert alert-warning" role="alert">
+            No se encontraron productos.
+          </div>
+        ) : (
+          <div className="row g-4">
+            {filteredProducts.map((product) => (
+              <div className="col-12 col-md-6 col-lg-4" key={product.id}>
+                <div className="card h-100 border-0 shadow-sm">
+                  <div className="card-body d-flex flex-column">
+                    <span className="badge bg-primary-subtle text-primary-emphasis text-uppercase fw-semibold mb-3">
+                      {product.type}
+                    </span>
+                    <h5 className="card-title mb-1">{product.name}</h5>
+                    {product.alias && (
+                      <p className="text-muted small mb-3">Alias: {product.alias}</p>
+                    )}
+                    <p className="display-6 fs-3 fw-bold text-primary mb-1">
+                      {formatCurrency(product.balance, product.currency)}
+                    </p>
+                    <p className="text-muted small mb-4">{product.currency}</p>
+                    <div className="mt-auto d-flex justify-content-between text-muted small">
+                      <span>ID: {product.id}</span>
+                      <span>Saldo</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        )}
+      </div>
       
     </div>
     </main>

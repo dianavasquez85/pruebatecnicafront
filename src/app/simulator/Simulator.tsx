@@ -297,7 +297,7 @@ export default function Simulator() {
   <div className="container-fluid py-5">
     <div className="row align-items-center mb-4 gy-3 justify-content-center">
       <div className="col-12 col-xl-10">
-          <h1 className="h3 mb-1">Simulador</h1>
+          <h1 className="h3 mb-1 text-primary">Simulador</h1>
           <p className="text-muted mb-0">
             Simula tus productos financieros y obtén resultados aproximados.
           </p>

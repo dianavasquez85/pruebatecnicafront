@@ -1,6 +1,8 @@
 import type { Product } from "@/types/product";
 
 export async function fetchProducts(userId: string): Promise<Product[]> {
+  const res = await fetch(`http://localhost:3002/products/by-user/${userId}`);
+  const products = await res.json();
 
     const mock: Product[] = [
   {
@@ -186,5 +188,5 @@ export async function fetchProducts(userId: string): Promise<Product[]> {
 ];
 
     // Simula una llamada a una API para obtener los productos
-    return mock;
+    return products;
 }

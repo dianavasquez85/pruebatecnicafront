@@ -49,7 +49,7 @@ export default function Sidebar() {
             <i className="bi bi-bank2"></i>
           </span>
           {!collapsed && (
-            <span className="fs-5 fw-bold text-primary">BancoSim</span>
+            <span className="fs-5 fw-bold text-primary">Banco Amigo</span>
           )}
         </Link>
         {/* Botón de colapsar */}
