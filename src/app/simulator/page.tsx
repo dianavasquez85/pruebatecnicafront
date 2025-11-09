@@ -7,11 +7,13 @@ export const revalidate = 3600;
 
 export default function SimulatorPage() {
   return (
-    <main  className="container mt-4">
-      <h1>Simulador de crédito</h1>
-      <p>
-        Ingresa el monto, plazo y tasa para calcular la cuota estimada de tu crédito.
-      </p>
+    <main className="container py-5">
+      <div className="col">
+          <h1 className="h3 mb-1">Simulador</h1>
+          <p className="text-muted mb-0">
+            Calcula los valores aproximados de tus productos financieros antes de contratarlos.
+          </p>
+        </div>
       <Simulator />
     </main>
   );

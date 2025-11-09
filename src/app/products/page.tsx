@@ -11,7 +11,6 @@ export default async function ProductsPage() {
 
   return (
     <main className="container mt-4">
-      <h1 className="mb-4">Mis Productos</h1>
       <Products products={products} />
     </main>
   );

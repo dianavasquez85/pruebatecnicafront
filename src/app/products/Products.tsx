@@ -29,7 +29,7 @@ export default function Products({ products }: Props) {
       setFilteredProducts(
         products.filter((product) =>
           product.name.toLowerCase().includes(lowerQuery) ||
-          (product.alias && product.alias.toLowerCase().includes(lowerQuery)) ||
+          (product.name && product.type.includes(lowerQuery)) ||
           product.type.toLowerCase().includes(lowerQuery)
         )
       );

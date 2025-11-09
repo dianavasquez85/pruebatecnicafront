@@ -1,8 +1,9 @@
 export interface Product {
-  id: number;
+  id: string;
+  userId: string;
   name: string;
   alias?: string;
   balance: number;
   currency: 'COP' | 'USD' | 'EUR';
-  type: 'ahorro' | 'corriente' | 'cdt';
+  type: 'ahorros' | 'corriente' | 'cdt' | 'credito' | 'inversion';
 }
